@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-CN" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>localStorageJS</title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="keywords" content="">
+<meta name="description" content="">
+<script>
+var lsJS = function() {
+    var run_lsJS = {
+        config:{},
+        load:function(){
+            var a = arguments, r = false;
+            h = document.head || document.getElementsByTagName('head')[0],
+            ss = this.ss,
+            d = document.createElement('script');
+            d.type = 'text/javascript';
+            if(typeof window.localStorage != 'undefined' && localStorage.getItem('localStorageJS')) {
+                if(document.all) {
+                    d.text = localStorage.getItem('localStorageJS');
+                } else {
+                    d.textContent = localStorage.getItem('localStorageJS');
+                }
+                h.appendChild(d);
+                localStorageJS(a,this.config,d);
+            } else {
+                d.src = ss;
+                d.onload = d.onreadystatechange = function() {
+                    if(!r && (!this.readyState || this.readyState == "loaded" || this.readyState == "complete")) {
+                        r = true;
+                        localStorageJS(a,this.config,d);
+                        //d.parentNode.removeChild(d);
+                        d.onload = d.onreadystatechange = null;
+                    }
+                };
+                h.appendChild(d);
+            }
+        }
+    };
+    return run_lsJS;
+}();
+
+lsJS.version = '0.0.1';
+lsJS.ss = 'localStorageJS.js';
+lsJS.config['error_expires'] = 30;
+lsJS.load({
+    name: "jquery",
+    url: "jquery-1.11.1.min.js",
+    version: "1.11.1"
+});
+</script>
+</head>
+
+<body>
+
+</body>
+</html>

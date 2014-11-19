@@ -1,4 +1,18 @@
-function localStorageJS(a, options, localStorageJSTag) {
+/**
+ * localStorageJS
+ * https://github.com/mlinquan/localStorageJS
+ *
+ * @version
+ * 0.0.1 (July 28, 2013)
+ *
+ * @copyright
+ * Copyright (C) 2013 LinQuan.
+ *
+ * @license
+ * Dual licensed under the MIT and GPL licenses.
+ */
+
+ function localStorageJS(a, options, localStorageJSTag) {
     var j = count = a.length, lsI=0, lsList = {}, lsPanding = {}, lsAllready = 0, second = new Date().getTime()/1000,
     head = document.head || document.getElementsByTagName('head')[0],
     localstorageable = (typeof window.localStorage != 'undefined'),
@@ -95,12 +109,12 @@ function localStorageJS(a, options, localStorageJSTag) {
                     var jj = function() {
                         if(xhr.responseText) {
                             source = (type == 'css') ? css_repath(url, xhr.responseText) : xhr.responseText;
-                            source = "/*var lsJS = {expires:"+second+",version:"+version+"};*/\n" + source;
+                            source = "/*var lsJS = {\"expires\":\""+second+"\",\"version\":\""+version+"\"};*/\n" + source;
                             if(localstorageable) localStorage.setItem(name, source);
                             lsList[name].el = create_element(type,url,source);
                             lsList[name].lsStatus = 'loaded';
                         } else {
-                            if(localstorageable) localStorage.setItem(name, "/*var lsJS = {error: "+xhr.status+", expires:"+second+"};*/\n");
+                            if(localstorageable) localStorage.setItem(name, "/*var lsJS = {\"error\": \""+xhr.status+"\", \"expires\":\""+second+"\"};*/\n");
                             lsList[name].lsStatus = 'error';
                         }
                     };
@@ -112,12 +126,12 @@ function localStorageJS(a, options, localStorageJSTag) {
                                         jj();
                                         release(name);
                                     } else if(!islocal && xhr.status == 0) {
-                                        if(localstorageable) localStorage.setItem(name, "/*var lsJS = {error: 'not-allow-cors', expires:"+second+"};*/\n");
+                                        if(localstorageable) localStorage.setItem(name, "/*var lsJS = {\"error\": \"not-allow-cors\", \"expires\":\""+second+"\"};*/\n");
                                         lsList[name].el = create_element(type,url,false);
                                         lsList[name].lsStatus = 'panding';
                                         release(name);
                                     } else {
-                                        if(localstorageable) localStorage.setItem(name, "/*var lsJS = {error: "+xhr.status+", expires:"+second+"};*/\n");
+                                        if(localstorageable) localStorage.setItem(name, "/*var lsJS = {\"error\": \""+xhr.status+"\", \"expires\":\""+second+"\"};*/\n");
                                         lsList[name].lsStatus = 'error';
                                         release(name);
                                     }
@@ -131,7 +145,7 @@ function localStorageJS(a, options, localStorageJSTag) {
                         }
                     } else {
                         xhr.onerror = function(e) {
-                            if(localstorageable) localStorage.setItem(name, "/*var lsJS = {error: 'not-allow-cors', expires:"+second+"};*/\n");
+                            if(localstorageable) localStorage.setItem(name, "/*var lsJS = {\"error\": \"not-allow-cors\", \"expires\":\""+second+"\"};*/\n");
                             lsList[name].el = create_element(type,url,false);
                             lsList[name].lsStatus = 'panding';
                             release(name);
@@ -255,7 +269,7 @@ function localStorageJS(a, options, localStorageJSTag) {
                         }
                     };
                     lsList[name].el.onerror = function(e) {
-                        if(localstorageable) localStorage.setItem(lsList[name].url, "/*var lsJS = {error: 404, expires:"+second+"};*/\n");
+                        if(localstorageable) localStorage.setItem(lsList[name].url, "/*var lsJS = {\"error\": \"404\", \"expires\":\""+second+"\"};*/\n");
                         lsList[name].lsStatus = 'error';
                         head.removeChild(lsList[name].el);
                         count--;
@@ -291,10 +305,10 @@ function localStorageJS(a, options, localStorageJSTag) {
                     head.removeChild(lsList[q].el);
                 }
             }
-            head.removeChild(localStorageJSTag);
+            //head.removeChild(localStorageJSTag);
         }
     }
     if(localstorageable && !localStorage.getItem('localStorageJS')) {
-        localStorage.setItem('localStorageJS', "var localStorageJS_version = " + runZeroRequest.version + "\;\n" + localStorageJS.toString());
+        localStorage.setItem('localStorageJS', "var localStorageJS_version = \"" + lsJS.version + "\"\;\n" + localStorageJS.toString());
     }
 }

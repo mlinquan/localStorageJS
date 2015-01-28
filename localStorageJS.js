@@ -3,7 +3,7 @@
  * https://github.com/mlinquan/localStorageJS
  *
  * @version
- * 0.0.1 (July 28, 2013)
+ * 0.0.2 (July 28, 2013)
  *
  * @copyright
  * Copyright (C) 2013 LinQuan.
@@ -66,7 +66,7 @@
                             } else if((second - lsJS.expires) > config.error_expires) {
                                 n = 4;
                             }
-                        } else if((lsJS.expires != 'never' && ((second - lsJS.expires) > config.expires)) || version && (!lsJS.version || lsJS.version < version)) {
+                        } else if((lsJS.expires != 'never' && ((second - lsJS.expires) > config.expires)) || version && (!lsJS.version || lsJS.version != version)) {
                             n = 0;
                         }
                     }

@@ -17,14 +17,23 @@ var lsJS = function() {
             d = document.createElement('script');
             d.type = 'text/javascript';
             if(typeof window.localStorage != 'undefined' && localStorage.getItem('localStorageJS')) {
-                if(document.all) {
-                    d.text = localStorage.getItem('localStorageJS');
+                var lsCode = localStorage.getItem('localStorageJS'),
+                lsJS_info = lsCode.match(/var localStorageJS_version = \"(.*)\"\;/i),
+                ls_v = lsJS_info[1];
+                if(ls_v == lsJS.version) {
+                    r = true;
+                    if(document.all) {
+                        d.text = lsCode;
+                    } else {
+                        d.textContent = lsCode;
+                    }
+                    h.appendChild(d);
+                    localStorageJS(a,this.config,d);
                 } else {
-                    d.textContent = localStorage.getItem('localStorageJS');
+                    localStorage.removeItem('localStorageJS')
                 }
-                h.appendChild(d);
-                localStorageJS(a,this.config,d);
-            } else {
+            }
+            if(!r) {
                 d.src = ss;
                 d.onload = d.onreadystatechange = function() {
                     if(!r && (!this.readyState || this.readyState == "loaded" || this.readyState == "complete")) {
@@ -41,7 +50,7 @@ var lsJS = function() {
     return run_lsJS;
 }();
 
-lsJS.version = '0.0.1';
+lsJS.version = '0.0.2';
 lsJS.ss = 'localStorageJS.js';
 lsJS.config['error_expires'] = 30;
 lsJS.load({

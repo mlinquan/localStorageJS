@@ -14,21 +14,25 @@ var lsJS = function() {
             var a = arguments, r = false;
             h = document.head || document.getElementsByTagName('head')[0],
             ss = this.ss,
+            config = this.config,
             d = document.createElement('script');
             d.type = 'text/javascript';
             if(typeof window.localStorage != 'undefined' && localStorage.getItem('localStorageJS')) {
                 var lsCode = localStorage.getItem('localStorageJS'),
-                lsJS_info = lsCode.match(/var localStorageJS_version = \"(.*)\"\;/i),
-                ls_v = lsJS_info[1];
-                if(ls_v == lsJS.version) {
+                lsJS_info;
+                try{
+                    lsJS_info = JSON.parse(lsCode);
+                } catch(e) {
+                }
+                if(lsJS_info && lsJS_info.version && lsJS_info.version == lsJS.version) {
                     r = true;
                     if(document.all) {
-                        d.text = lsCode;
+                        d.text = lsJS_info.source;
                     } else {
-                        d.textContent = lsCode;
+                        d.textContent = lsJS_info.source;
                     }
                     h.appendChild(d);
-                    localStorageJS(a,this.config,d);
+                    localStorageJS(a,config,d);
                 } else {
                     localStorage.removeItem('localStorageJS')
                 }
@@ -38,7 +42,7 @@ var lsJS = function() {
                 d.onload = d.onreadystatechange = function() {
                     if(!r && (!this.readyState || this.readyState == "loaded" || this.readyState == "complete")) {
                         r = true;
-                        localStorageJS(a,this.config,d);
+                        localStorageJS(a,config,d);
                         //d.parentNode.removeChild(d);
                         d.onload = d.onreadystatechange = null;
                     }
@@ -50,9 +54,13 @@ var lsJS = function() {
     return run_lsJS;
 }();
 
-lsJS.version = '0.0.2';
+lsJS.version = '0.0.6';
 lsJS.ss = 'localStorageJS.js';
-lsJS.config['error_expires'] = 30;
+lsJS.config.error_expires = 30;
+lsJS.config.debug = true;
+lsJS.config.allready = function() {
+    $("#global_loading").hide();
+};
 lsJS.load({
     name: "jquery",
     url: "http://code.jquery.com/jquery-1.11.1.min.js",
@@ -62,6 +70,6 @@ lsJS.load({
 </head>
 
 <body>
-
+<div id="global_loading">Loading...</div>
 </body>
 </html>

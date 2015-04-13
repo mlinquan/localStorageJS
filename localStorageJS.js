@@ -3,7 +3,7 @@
  * https://github.com/mlinquan/localStorageJS
  *
  * @version
- * 0.0.7 (April 13, 2015)
+ * 0.0.8 (April 13, 2015)
  *
  * @copyright
  * Copyright (C) 2013 LinQuan.
@@ -12,11 +12,11 @@
  * Dual licensed under the MIT and GPL licenses.
  */
 
- function localStorageJS(a, options, localStorageJSTag) {
-    var qq = 0;
-    var lsJ = lsCount = a.length, lsI=0, lsQ = {}, lsList = {}, lsOnload = [], lsPanding = {}, lsAllready = 0, second = new Date().getTime()/1000,
+function localStorageJS(a, options, localStorageJSTag) {
+    var lsJ = lsCount = a.length, lsI=0, lsQ = {}, lsList = {}, lsOnload = [], lsPanding = {}, lsAllready = 0,
     head = document.head || document.getElementsByTagName('head')[0],
     localstorageable = (typeof window.localStorage != 'undefined'),
+    lteIE8 = !/^[^{]+\{\s*\[native \w/.test(document.getElementsByClassName),
     localhost = location.hostname,
     localpath = location.pathname,
     config = {
@@ -79,7 +79,7 @@
         }
         if(obj.source) {
             var source = obj.source.replace(/\/\*(.*)\*\//gi, "").replace("\r", "").replace("\n\n", "\n");
-            if(!+[1,]) {
+            if(lteIE8) {
                 if(obj.type == 'css') {
                     element.styleSheet.cssText = source;
                 } else if(obj.type == 'js') {

@@ -3,7 +3,7 @@
  * https://github.com/mlinquan/localStorageJS
  *
  * @version
- * 0.0.8 (April 13, 2015)
+ * 0.0.9 (April 13, 2015)
  *
  * @copyright
  * Copyright (C) 2013 LinQuan.
@@ -130,7 +130,7 @@ function localStorageJS(a, options, localStorageJSTag) {
                         if (xhr.readyState == 4) {
                             if(xhr.status == 200 || xhr.status == 304) {
                                 data_tmp.source = xhr.responseText;
-                            } else if(!islocal && xhr.status == 0) {
+                            } else if(!obj.islocal && xhr.status == 0) {
                                 data_tmp.error = "not-allow-cors";
                             } else {
                                 data_tmp.error = xhr.status;

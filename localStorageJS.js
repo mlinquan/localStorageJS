@@ -3,7 +3,7 @@
  * https://github.com/mlinquan/localStorageJS
  *
  * @version
- * 0.0.9 (April 13, 2015)
+ * 0.1.0 (April 13, 2015)
  *
  * @copyright
  * Copyright (C) 2013 LinQuan.
@@ -13,7 +13,8 @@
  */
 
 function localStorageJS(a, options, localStorageJSTag) {
-    var lsJ = lsCount = a.length, lsI=0, lsQ = {}, lsList = {}, lsOnload = [], lsPanding = {}, lsAllready = 0,
+    "use strict";
+    var lsJ = a.length, lsCount = a.length, lsI=0, lsQ = {}, lsList = {}, lsOnload = [], lsPanding = {}, lsAllready = 0,
     head = document.head || document.getElementsByTagName('head')[0],
     localstorageable = (typeof window.localStorage != 'undefined'),
     lteIE8 = !/^[^{]+\{\s*\[native \w/.test(document.getElementsByClassName),
@@ -52,7 +53,7 @@ function localStorageJS(a, options, localStorageJSTag) {
         }
         var tmp = document.createElement("a");
         tmp.href = baseurl + abspath;
-        tmpport = (tmp.port && !(/(80|443|0)/.test(tmp.port))) ? ':'+ tmp.port : '';
+        var tmpport = (tmp.port && !(/(80|443|0)/.test(tmp.port))) ? ':'+ tmp.port : '';
         var tmppath = (/^\//i.test(tmp.pathname)) ? tmp.pathname : '/'+tmp.pathname;
         var relpath = tmp.protocol+"//"+tmp.hostname+tmpport+tmppath+tmp.search+tmp.hash;
         tmp = null;
@@ -108,21 +109,31 @@ function localStorageJS(a, options, localStorageJSTag) {
     },
     doGet = function(obj) {
         var xhr, xtype, data_tmp;
-        try {
+        try{
             xhr = new XMLHttpRequest();
-        } catch (e) {}
+        } catch(e) {}
 
-        obj.islocal ?
-            !xhr && window.ActiveXObject && (xhr = new ActiveXObject("Microsoft.XMLHTTP"))
-                :xhr && "withCredentials" in xhr || ("undefined" != typeof XDomainRequest ?
-                    (xhr = new XDomainRequest(), xtype = "XDR")
-                        :xhr = null);
+        if(islocal) {
+            if(!xhr && window.ActiveXObject) {
+                xhr = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+        } else {
+            if(xhr && ("withCredentials" in xhr)) {
+                //xhr = new XMLHttpRequest();
+            } else if(typeof XDomainRequest != "undefined") {
+                xhr = new XDomainRequest();
+                xtype = 'XDR';
+            } else {
+                xhr = null;
+            }
+        }
 
         data_tmp = {
             url: obj.url,
             source: "",
             error: ""
         };
+
         if(xhr) {
             if(!xtype) {
                 try{//Firefox 3.0
@@ -130,7 +141,7 @@ function localStorageJS(a, options, localStorageJSTag) {
                         if (xhr.readyState == 4) {
                             if(xhr.status == 200 || xhr.status == 304) {
                                 data_tmp.source = xhr.responseText;
-                            } else if(!obj.islocal && xhr.status == 0) {
+                            } else if(!obj.islocal && xhr.status === 0) {
                                 data_tmp.error = "not-allow-cors";
                             } else {
                                 data_tmp.error = xhr.status;
@@ -172,8 +183,10 @@ function localStorageJS(a, options, localStorageJSTag) {
                     }
                 }
             }
-            for(x in localStorage) {
-                /^lsI_/.test(x) && !lsQ[x.replace("lsI_", "")] && localStorage.removeItem(x);
+            for(var x in localStorage) {
+                if(/^lsI_/.test(x) && !lsQ[x.replace("lsI_", "")]) {
+                    localStorage.removeItem(x);
+                }
             }
         }
     },
@@ -192,7 +205,9 @@ function localStorageJS(a, options, localStorageJSTag) {
                     lsList[name].el.onload = lsList[name].el.onreadystatechange = function(e) {
                         if(!lsList[name].el.readyState || lsList[name].el.readyState == "loaded" || lsList[name].el.readyState == "complete") {
                             lsList[name].lsStatus = 'ok';
-                            (lsList[name].callback && typeof lsList[name].callback === 'function') && lsList[name].callback();
+                            if(lsList[name].callback && typeof lsList[name].callback === 'function') {
+                                lsList[name].callback();
+                            }
                             lsCount--;
                             release_panding(name);
                         }
@@ -223,21 +238,23 @@ function localStorageJS(a, options, localStorageJSTag) {
     },
     release_panding = function(name) {
         if(lsPanding[name]) {
-            for(x in lsPanding[name]) {
+            for(var x in lsPanding[name]) {
                 release(x);
             }
         }
-        if(lsCount == lsAllready && lsPanding["allready"]) {
-            for(x in lsPanding["allready"]) {
-                release(x);
+        if(lsCount == lsAllready && lsPanding.allready) {
+            for(var y in lsPanding.allready) {
+                release(y);
             }
         }
-        if(lsCount == 0) {
-            for(q in lsList) {
+        if(lsCount === 0) {
+            for(var q in lsList) {
                 if(lsList[q].lsStatus == 'loaded') {
                     head.appendChild(lsList[q].el);
                     lsList[q].lsStatus = 'ok';
-                    (lsList[q].callback && typeof lsList[q].callback === 'function') && lsList[q].callback();
+                    if(lsList[q].callback && typeof lsList[q].callback === 'function') {
+                        lsList[q].callback();
+                    }
                     lsCount--;
                 }
                 if(!config.debug && lsList[q].type == 'js' && (lsList[q].removeSelf || config.removeAll) && lsList[q].lsStatus != "error") {
@@ -300,13 +317,15 @@ function localStorageJS(a, options, localStorageJSTag) {
             }
         }
         if(!a[i].el) {
-            !config.debug && doGet(a[i]);
+            if(!config.debug) {
+                doGet(a[i]);
+            }
             a[i].lsStatus = "panding";
             a[i].el = createLsElement(a[i]);
         }
         lsList[a[i].name] = a[i];
     }
-    for(x in lsList) {
+    for(var x in lsList) {
         release(x);
     }
     if(window.addEventListener) {

@@ -8,10 +8,11 @@
 <meta name="description" content="">
 <script>
 var lsJS = function() {
+    "use strict";
     var run_lsJS = {
         config:{},
         load:function(){
-            var a = arguments, r = false;
+            var a = arguments, r = false,
             h = document.head || document.getElementsByTagName('head')[0],
             ss = this.ss,
             config = this.config,
@@ -34,7 +35,7 @@ var lsJS = function() {
                     h.appendChild(d);
                     localStorageJS(a,config,d);
                 } else {
-                    localStorage.removeItem('localStorageJS')
+                    localStorage.removeItem('localStorageJS');
                 }
             }
             if(!r) {
@@ -54,7 +55,7 @@ var lsJS = function() {
     return run_lsJS;
 }();
 
-lsJS.version = '0.0.9';
+lsJS.version = '0.1.0';
 lsJS.ss = 'localStorageJS.js';
 lsJS.config.error_expires = 30;
 lsJS.config.debug = true;

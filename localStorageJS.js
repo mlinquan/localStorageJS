@@ -3,7 +3,7 @@
  * https://github.com/mlinquan/localStorageJS
  *
  * @version
- * 0.1.0 (April 13, 2015)
+ * 0.1.1 (April 13, 2015)
  *
  * @copyright
  * Copyright (C) 2013 LinQuan.
@@ -113,7 +113,7 @@ function localStorageJS(a, options, localStorageJSTag) {
             xhr = new XMLHttpRequest();
         } catch(e) {}
 
-        if(islocal) {
+        if(obj.islocal) {
             if(!xhr && window.ActiveXObject) {
                 xhr = new ActiveXObject("Microsoft.XMLHTTP");
             }

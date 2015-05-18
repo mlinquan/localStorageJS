@@ -219,7 +219,7 @@ function localStorageJS(a, options, localStorageJSTag) {
                             lsCount--;
                             release_panding(name);
                         }
-                    }; 
+                    };
                     lsList[name].el.onerror = function(e) {
                         var data_tmp = {
                             url: lsList[name].url,

@@ -3,7 +3,7 @@
  * https://github.com/mlinquan/localStorageJS
  *
  * @version
- * 0.1.1 (April 13, 2015)
+ * 0.1.2 (April 13, 2015)
  *
  * @copyright
  * Copyright (C) 2013 LinQuan.
@@ -14,7 +14,15 @@
 
 function localStorageJS(a, options, localStorageJSTag) {
     "use strict";
-    var lsJ = a.length, lsCount = a.length, lsI=0, lsQ = {}, lsList = {}, lsOnload = [], lsPanding = {}, lsAllready = 0,
+    if(!a.length && !window.ll_JS) {
+        return false;
+    }
+    if(!a.length) {
+        a = window.ll_JS;
+    }
+    options = (options || window.ll_JS_opt || {});
+    window.ll_JS_opt = options;
+    var lsJ = a.length, lsCount = a.length , lsI=0, lsQ = {}, lsList = {}, lsOnload = [], lsPanding = {}, lsAllready = 0,
     head = document.head || document.getElementsByTagName('head')[0],
     localstorageable = (typeof window.localStorage != 'undefined'),
     lteIE8 = !/^[^{]+\{\s*\[native \w/.test(document.getElementsByClassName),
@@ -192,7 +200,7 @@ function localStorageJS(a, options, localStorageJSTag) {
     },
     release = function(name) {
         if(lsList[name].lsStatus == 'loaded' || lsList[name].lsStatus == 'panding') {
-            if(!lsList[name].require || (lsList[name].require && lsList[name].require != 'allready' && lsList[lsList[name].require].lsStatus == 'ok') || (lsCount == lsAllready)) {
+            if(!lsList[name].require || (lsList[name].require && lsList[name].require != 'allready' && lsList[lsList[name].require].lsStatus == 'ok') || (lsCount <= lsAllready)) {
                 if(lsList[name].lsStatus == 'loaded') {
                     lsList[name].lsStatus = 'ok';
                     head.appendChild(lsList[name].el);
@@ -211,7 +219,7 @@ function localStorageJS(a, options, localStorageJSTag) {
                             lsCount--;
                             release_panding(name);
                         }
-                    };
+                    }; 
                     lsList[name].el.onerror = function(e) {
                         var data_tmp = {
                             url: lsList[name].url,
@@ -325,13 +333,9 @@ function localStorageJS(a, options, localStorageJSTag) {
         }
         lsList[a[i].name] = a[i];
     }
+    window.ll_JS = lsOnload;
     for(var x in lsList) {
         release(x);
-    }
-    if(window.addEventListener) {
-        window.addEventListener('load',onloadFun,false);
-    } else {
-        window.attachEvent('onload',onloadFun);
     }
     if(!config.debug && (localstorageable && !localStorage.getItem('localStorageJS'))) {
         var lsTmp = {
@@ -340,4 +344,23 @@ function localStorageJS(a, options, localStorageJSTag) {
         };
         doStorage('localStorageJS', lsTmp);
     }
+
+    if(window.addEventListener) {
+        window.addEventListener('load',onloadFun,false);
+    } else {
+        window.attachEvent('onload',onloadFun);
+    }
+
+    var _pushState = History.prototype.pushState,
+    _replaceState = History.prototype.replaceState;
+
+    History.prototype.pushState = function(data, title, url) {
+        _pushState.apply(this, arguments);
+        lsJS.load();
+    };
+
+    History.prototype.replaceState = function(data, title, url) {
+        _replaceState.apply(this, arguments);
+        lsJS.load();
+    };
 }

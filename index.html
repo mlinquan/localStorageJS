@@ -11,12 +11,16 @@ var lsJS = function() {
     "use strict";
     var run_lsJS = {
         config:{},
-        load:function(){
+        load:function() {
             var a = arguments, r = false,
             h = document.head || document.getElementsByTagName('head')[0],
             ss = this.ss,
-            config = this.config,
-            d = document.createElement('script');
+            config = this.config;
+            if(typeof localStorageJS !== "undefined") {
+                localStorageJS(a, config);
+                return;
+            }
+            var d = document.createElement('script');
             d.type = 'text/javascript';
             if(typeof window.localStorage != 'undefined' && localStorage.getItem('localStorageJS')) {
                 var lsCode = localStorage.getItem('localStorageJS'),
@@ -55,22 +59,38 @@ var lsJS = function() {
     return run_lsJS;
 }();
 
-lsJS.version = '0.1.1';
+lsJS.version = '0.1.2';
 lsJS.ss = 'localStorageJS.js';
 lsJS.config.error_expires = 30;
-lsJS.config.debug = true;
+lsJS.config.removeAll = false;
 lsJS.config.allready = function() {
-    $("#global_loading").hide();
+    $(function() {
+        $("#global_loading").hide();
+    });
 };
 lsJS.load({
     name: "jquery",
-    url: "http://code.jquery.com/jquery-1.11.1.min.js",
+    url: "jquery-1.11.1.min.js",
+    condition:function() {
+
+    },
     version: "1.11.1"
+},{
+    name: "history",
+    url: "history.js",
+    require:"jquery"
+},{
+    name: "console",
+    url: "console.js",
+    router:{
+        path:"console.html"
+    }
 });
 </script>
 </head>
 
 <body>
 <div id="global_loading">Loading...</div>
+<a href="console.html" id="rewrite_url">Click me to rewrite URL with the History API</a>
 </body>
 </html>

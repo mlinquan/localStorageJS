@@ -3,7 +3,7 @@
  * https://github.com/mlinquan/localStorageJS
  *
  * @version
- * 0.1.3 (April 13, 2015)
+ * 0.1.4 (April 13, 2015)
  *
  * @copyright
  * Copyright (C) 2013 LinQuan.
@@ -14,6 +14,117 @@
 
 function localStorageJS() {
     "use strict";
+    /**
+     * Match matching groups in a regular expression.
+     */
+    var MATCHING_GROUP_REGEXP = /\((?!\?)/g;
+
+    /**
+     * Normalize the given path string,
+     * returning a regular expression.
+     *
+     * An empty array should be passed,
+     * which will contain the placeholder
+     * key names. For example "/user/:id" will
+     * then contain ["id"].
+     *
+     * @param  {String|RegExp|Array} path
+     * @param  {Array} keys
+     * @param  {Object} options
+     * @return {RegExp}
+     * @api private
+     */
+
+    function pathtoRegexp(path, keys, options) {
+      options = options || {};
+      keys = keys || [];
+      var strict = options.strict;
+      var end = options.end !== false;
+      var flags = options.sensitive ? '' : 'i';
+      var extraOffset = 0;
+      var keysOffset = keys.length;
+      var i = 0;
+      var name = 0;
+      var m;
+
+      if (path instanceof RegExp) {
+        while (m = MATCHING_GROUP_REGEXP.exec(path.source)) {
+          keys.push({
+            name: name++,
+            optional: false,
+            offset: m.index
+          });
+        }
+
+        return path;
+      }
+
+      if (Array.isArray(path)) {
+        // Map array parts into regexps and return their source. We also pass
+        // the same keys and options instance into every generation to get
+        // consistent matching groups before we join the sources together.
+        path = path.map(function (value) {
+          return pathtoRegexp(value, keys, options).source;
+        });
+
+        return new RegExp('(?:' + path.join('|') + ')', flags);
+      }
+
+      path = ('^' + path + (strict ? '' : path[path.length - 1] === '/' ? '?' : '/?'))
+        .replace(/\/\(/g, '/(?:')
+        .replace(/([\/\.])/g, '\\$1')
+        .replace(/(\\\/)?(\\\.)?:(\w+)(\(.*?\))?(\*)?(\?)?/g, function (match, slash, format, key, capture, star, optional, offset) {
+          slash = slash || '';
+          format = format || '';
+          capture = capture || '([^\\/' + format + ']+?)';
+          optional = optional || '';
+
+          keys.push({
+            name: key,
+            optional: !!optional,
+            offset: offset + extraOffset
+          });
+
+          var result = ''
+            + (optional ? '' : slash)
+            + '(?:'
+            + format + (optional ? slash : '') + capture
+            + (star ? '((?:[\\/' + format + '].+?)?)' : '')
+            + ')'
+            + optional;
+
+          extraOffset += result.length - match.length;
+
+          return result;
+        })
+        .replace(/\*/g, function (star, index) {
+          var len = keys.length
+
+          while (len-- > keysOffset && keys[len].offset > index) {
+            keys[len].offset += 3;
+          }
+
+          return '(.*)';
+        });
+
+      // This is a workaround for handling unnamed matching groups.
+      while (m = MATCHING_GROUP_REGEXP.exec(path)) {
+        if (keysOffset + i === keys.length || keys[keysOffset + i].offset > m.index) {
+          keys.splice(keysOffset + i, 0, {
+            name: name++, // Unnamed matching groups must be consistently linear.
+            optional: false,
+            offset: m.index
+          });
+        }
+
+        i++;
+      }
+
+      // If the path is non-ending, match until the end or a slash.
+      path += (end ? '$' : (path[path.length - 1] === '/' ? '' : '(?=\\/|$)'));
+
+      return new RegExp(path, flags);
+    };
 
     var map, useMap = {}, cfg, standby = [], queue = [], lsList = {}, lteIE8 = eval(!-[1,]),
         gteIE8 = (typeof window.localStorage != 'undefined'),
@@ -28,7 +139,7 @@ function localStorageJS() {
         jsReg = /(\.js$|\.js\?.+$|\.js#.+$)/i,
         cssReg = /(\.css$|\.css\?.+$|\.css#.+$)/i,
         tmp_a = document.createElement("a"),
-        version = "0.1.3";
+        version = "0.1.4";
 
     if(!Array.prototype.indexOf) {
         Array.prototype.indexOf = function(item, start) {
@@ -129,13 +240,8 @@ function localStorageJS() {
                     continue;
                 }
                 if(deps[i].router.path) {
-                    var tmp_reg;
-                    try{
-                        tmp_reg = new RegExp(deps[i].router.path);
-                    } catch(e) {
-                        throw deps[i].name + " : The path regular expression error.";
-                    }
-                    if(tmp_reg && !tmp_reg.test(path)) {
+                    var path_reg = pathtoRegexp(deps[i].router.path);
+                    if(!path_reg.exec(path)) {
                         standby.push(deps[i]);
                         continue;
                     }
@@ -180,6 +286,9 @@ function localStorageJS() {
                     require: map[name].require
                 };
             }
+            if(!lsList[name].url && cfg.path[name]) {
+                lsList[name].url = cfg.path[name];
+            }
             lsList[name].url = cfg.baseUrl + lsList[name].url;
             tmp_a.href = lsList[name].url;
             lsList[name].islocal = (tmp_a.hostname == host);
@@ -213,12 +322,15 @@ function localStorageJS() {
 
     function createElem(obj) {
         if(!obj.type) {
-            return showError();
+            return;// showError();
         }
         var element;
         if(obj.type == "js") {
             element = document.createElement('script');
             element.type = 'text/javascript';
+            if(cfg.debug) {
+                element.title = obj.name;
+            }
             if(obj.source) {
                 if(isIE8) {
                     element.text = obj.source;
@@ -392,7 +504,13 @@ function localStorageJS() {
     }
 
     function doStorage(name, data) {
-        if(!gteIE8) {
+        var isDebug;
+        if(!cfg) {
+            isDebug = lsJS.config.debug || false;
+        } else {
+            isDebug = cfg.debug;
+        }
+        if(!gteIE8 || isDebug) {
             return;
         }
         name = (name != "localStorageJS") && "lsI_" + name || name;
@@ -405,7 +523,7 @@ function localStorageJS() {
         }
         for(var x in localStorage) {
             var name = /^lsI_/.test(x) && x.replace("lsI_", "");
-            if(name && !localStorageJS.map[name]) {
+            if((name && !localStorageJS.map[name]) || cfg.debug) {
                 localStorage.removeItem(x);
             }
         }

@@ -3,7 +3,7 @@
  * https://github.com/mlinquan/localStorageJS
  *
  * @version
- * 0.1.4 (April 13, 2015)
+ * 0.1.5 (April 13, 2015)
  *
  * @copyright
  * Copyright (C) 2013 LinQuan.
@@ -14,6 +14,21 @@
 
 function localStorageJS() {
     "use strict";
+
+    var map, useMap = {}, cfg, standby = [], queue = [], lsList = {}, lteIE8 = eval(!-[1,]),
+        gteIE8 = (typeof window.localStorage != 'undefined'),
+        isIE8 = (lteIE8 && gteIE8),
+        ltIE8 = (lteIE8 && !isIE8),
+        head = document.head || document.getElementsByTagName('head')[0],
+        host = location.hostname,
+        path = location.pathname,
+        op = Object.prototype,
+        ostring = op.toString,
+        hasOwn = op.hasOwnProperty,
+        jsReg = /(\.js$|\.js\?.+$|\.js#.+$)/i,
+        cssReg = /(\.css$|\.css\?.+$|\.css#.+$)/i,
+        version = "0.1.5";
+
     /**
      * Match matching groups in a regular expression.
      */
@@ -59,7 +74,7 @@ function localStorageJS() {
         return path;
       }
 
-      if (Array.isArray(path)) {
+      if (isArray(path)) {
         // Map array parts into regexps and return their source. We also pass
         // the same keys and options instance into every generation to get
         // consistent matching groups before we join the sources together.
@@ -124,22 +139,7 @@ function localStorageJS() {
       path += (end ? '$' : (path[path.length - 1] === '/' ? '' : '(?=\\/|$)'));
 
       return new RegExp(path, flags);
-    };
-
-    var map, useMap = {}, cfg, standby = [], queue = [], lsList = {}, lteIE8 = eval(!-[1,]),
-        gteIE8 = (typeof window.localStorage != 'undefined'),
-        isIE8 = (lteIE8 && gteIE8),
-        ltIE8 = (lteIE8 && !isIe8),
-        head = document.head || document.getElementsByTagName('head')[0],
-        host = location.hostname,
-        path = location.pathname,
-        op = Object.prototype,
-        ostring = op.toString,
-        hasOwn = op.hasOwnProperty,
-        jsReg = /(\.js$|\.js\?.+$|\.js#.+$)/i,
-        cssReg = /(\.css$|\.css\?.+$|\.css#.+$)/i,
-        tmp_a = document.createElement("a"),
-        version = "0.1.4";
+    }
 
     if(!Array.prototype.indexOf) {
         Array.prototype.indexOf = function(item, start) {
@@ -290,8 +290,9 @@ function localStorageJS() {
                 lsList[name].url = cfg.path[name];
             }
             lsList[name].url = cfg.baseUrl + lsList[name].url;
+            var tmp_a = document.createElement("a");
             tmp_a.href = lsList[name].url;
-            lsList[name].islocal = (tmp_a.hostname == host);
+            lsList[name].islocal = true;//(tmp_a.hostname == host);
             lsList[name].type = elemType(lsList[name].url);
             if(!cfg.debug && gteIE8 && localStorage.getItem("lsI_" + lsList[name].name)) {
                 var scTmp = localStorage.getItem("lsI_" + lsList[name].name),

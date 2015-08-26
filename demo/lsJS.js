@@ -57,7 +57,6 @@ lsJS.config = {
         'jquery': 'jquery-1.11.1.min.js'
     },
     error_expires: 30,
-    debug: true,
     removeAll: false,
     allready: function() {
         (function($) {

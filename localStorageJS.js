@@ -3,7 +3,7 @@
  * https://github.com/mlinquan/localStorageJS
  *
  * @version
- * 0.1.5 (April 13, 2015)
+ * 0.1.6 (April 13, 2015)
  *
  * @copyright
  * Copyright (C) 2013 LinQuan.
@@ -27,7 +27,7 @@ function localStorageJS() {
         hasOwn = op.hasOwnProperty,
         jsReg = /(\.js$|\.js\?.+$|\.js#.+$)/i,
         cssReg = /(\.css$|\.css\?.+$|\.css#.+$)/i,
-        version = "0.1.5";
+        version = "0.1.6";
 
     /**
      * Match matching groups in a regular expression.
@@ -216,13 +216,13 @@ function localStorageJS() {
                 if(!obj.require || !isArray(obj.require) || obj.require.length === 0) {
                     continue;
                 }
+                if(!map[obj.name]) {
+                    map[obj.name] = {children:[],require:[]};
+                }
                 for(var l=0;l<obj.require.length;l++) {
                     var require = obj.require[l];
                     if(!map[require]) {
                         map[require] = {children:[],require:[]};
-                    }
-                    if(!map[obj.name]) {
-                        map[obj.name] = {children:[],require:[]};
                     }
                     map[require].children.push(obj.name);
                     map[obj.name].require.push(require);
@@ -301,7 +301,7 @@ function localStorageJS() {
                     thatTmp = JSON.parse(scTmp);
                 } catch(e) {
                 }
-                if(thatTmp && thatTmp.source && thatTmp.url && thatTmp.url == lsList[name].url && !thatTmp.error) {
+                if(!cfg.debug && thatTmp && thatTmp.source && thatTmp.url && thatTmp.url == lsList[name].url && !thatTmp.error) {
                     lsList[name].source = thatTmp.source;
                     lsList[name].status = "loaded";
                     lsList[name].el = createElem(lsList[name]);
@@ -505,13 +505,7 @@ function localStorageJS() {
     }
 
     function doStorage(name, data) {
-        var isDebug;
-        if(!cfg) {
-            isDebug = lsJS.config.debug || false;
-        } else {
-            isDebug = cfg.debug;
-        }
-        if(!gteIE8 || isDebug) {
+        if(!gteIE8) {
             return;
         }
         name = (name != "localStorageJS") && "lsI_" + name || name;
@@ -524,7 +518,7 @@ function localStorageJS() {
         }
         for(var x in localStorage) {
             var name = /^lsI_/.test(x) && x.replace("lsI_", "");
-            if((name && !localStorageJS.map[name]) || cfg.debug) {
+            if(name && !localStorageJS.map[name]) {
                 localStorage.removeItem(x);
             }
         }

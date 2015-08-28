@@ -23,7 +23,94 @@
 <a id="localstoragejs" class="anchor" href="#localstoragejs" aria-hidden="true"><span class="octicon octicon-link"></span></a>localStorageJS</h1>
 
 <p>Local storage Javascript and CSS files.No 304 request.</p>
-      <a href="demo/index.html">Demo</a>
+
+<h2>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage</h2>
+
+<h3>
+<a id="the-lsjsjs-file" class="anchor" href="#the-lsjsjs-file" aria-hidden="true"><span class="octicon octicon-link"></span></a>The lsJS.js file.</h3>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> <span class="pl-en">lsJS</span> <span class="pl-k">=</span> <span class="pl-k">function</span>() {
+    <span class="pl-s"><span class="pl-pds">"</span>use strict<span class="pl-pds">"</span></span>;
+    <span class="pl-k">var</span> run_lsJS <span class="pl-k">=</span> {
+        config<span class="pl-k">:</span>{},
+        <span class="pl-en">load</span><span class="pl-k">:</span><span class="pl-k">function</span>(){
+            <span class="pl-k">var</span> a <span class="pl-k">=</span> arguments, r <span class="pl-k">=</span> <span class="pl-c1">false</span>,
+            lteIE8 <span class="pl-k">=</span> <span class="pl-c1">eval</span>(<span class="pl-k">!-</span>[<span class="pl-c1">1</span>,]),
+            h <span class="pl-k">=</span> <span class="pl-c1">document</span>.<span class="pl-c1">head</span> <span class="pl-k">||</span> <span class="pl-c1">document</span>.<span class="pl-c1">getElementsByTagName</span>(<span class="pl-s"><span class="pl-pds">'</span>head<span class="pl-pds">'</span></span>)[<span class="pl-c1">0</span>],
+            ss <span class="pl-k">=</span> <span class="pl-v">this</span>.<span class="pl-c1">ss</span>,
+            config <span class="pl-k">=</span> <span class="pl-v">this</span>.<span class="pl-c1">config</span>,
+            d <span class="pl-k">=</span> <span class="pl-c1">document</span>.<span class="pl-c1">createElement</span>(<span class="pl-s"><span class="pl-pds">'</span>script<span class="pl-pds">'</span></span>);
+            d.<span class="pl-c1">type</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">'</span>text/javascript<span class="pl-pds">'</span></span>;
+            <span class="pl-k">if</span>(<span class="pl-k">typeof</span> <span class="pl-c1">window</span>.<span class="pl-c1">localStorage</span> <span class="pl-k">!=</span> <span class="pl-s"><span class="pl-pds">'</span>undefined<span class="pl-pds">'</span></span> <span class="pl-k">&amp;&amp;</span> localStorage.<span class="pl-c1">getItem</span>(<span class="pl-s"><span class="pl-pds">'</span>localStorageJS<span class="pl-pds">'</span></span>) <span class="pl-k">&amp;&amp;</span> <span class="pl-k">!</span>config.<span class="pl-c1">debug</span>) {
+                <span class="pl-k">var</span> lsCode <span class="pl-k">=</span> localStorage.<span class="pl-c1">getItem</span>(<span class="pl-s"><span class="pl-pds">'</span>localStorageJS<span class="pl-pds">'</span></span>),
+                lsJS_info;
+                <span class="pl-k">try</span>{
+                    lsJS_info <span class="pl-k">=</span> <span class="pl-c1">JSON</span>.<span class="pl-c1">parse</span>(lsCode);
+                } <span class="pl-k">catch</span>(e) {
+                }
+                <span class="pl-k">if</span>(lsJS_info <span class="pl-k">&amp;&amp;</span> lsJS_info.<span class="pl-c1">url</span> <span class="pl-k">&amp;&amp;</span> (lsJS_info.<span class="pl-c1">url</span> <span class="pl-k">==</span> ss)) {
+                    r <span class="pl-k">=</span> <span class="pl-c1">true</span>;
+                    <span class="pl-k">if</span>(lteIE8) {
+                        d.<span class="pl-c1">text</span> <span class="pl-k">=</span> lsJS_info.<span class="pl-c1">source</span>;
+                    } <span class="pl-k">else</span> {
+                        d.<span class="pl-c1">textContent</span> <span class="pl-k">=</span> lsJS_info.<span class="pl-c1">source</span>;
+                    }
+                    h.<span class="pl-c1">appendChild</span>(d);
+                    localStorageJS.<span class="pl-c1">config</span>(config);
+                    localStorageJS.<span class="pl-c1">load</span>(a);
+                } <span class="pl-k">else</span> {
+                    localStorage.<span class="pl-c1">removeItem</span>(<span class="pl-s"><span class="pl-pds">'</span>localStorageJS<span class="pl-pds">'</span></span>);
+                }
+            }
+            <span class="pl-k">if</span>(<span class="pl-k">!</span>r) {
+                d.<span class="pl-c1">src</span> <span class="pl-k">=</span> ss;
+                d.<span class="pl-c1">onload</span> <span class="pl-k">=</span> <span class="pl-c1">d</span>.<span class="pl-en">onreadystatechange</span> <span class="pl-k">=</span> <span class="pl-k">function</span>() {
+                    <span class="pl-k">if</span>(<span class="pl-k">!</span>r <span class="pl-k">&amp;&amp;</span> (<span class="pl-k">!</span><span class="pl-v">this</span>.<span class="pl-c1">readyState</span> <span class="pl-k">||</span> <span class="pl-v">this</span>.<span class="pl-c1">readyState</span> <span class="pl-k">==</span> <span class="pl-s"><span class="pl-pds">"</span>loaded<span class="pl-pds">"</span></span> <span class="pl-k">||</span> <span class="pl-v">this</span>.<span class="pl-c1">readyState</span> <span class="pl-k">==</span> <span class="pl-s"><span class="pl-pds">"</span>complete<span class="pl-pds">"</span></span>)) {
+                        r <span class="pl-k">=</span> <span class="pl-c1">true</span>;
+                        localStorageJS.<span class="pl-c1">config</span>(config);
+                        localStorageJS.<span class="pl-c1">load</span>(a);
+                        <span class="pl-c">//d.parentNode.removeChild(d);</span>
+                        d.<span class="pl-c1">onload</span> <span class="pl-k">=</span> d.<span class="pl-c1">onreadystatechange</span> <span class="pl-k">=</span> <span class="pl-c1">null</span>;
+                    }
+                };
+                h.<span class="pl-c1">appendChild</span>(d);
+            }
+        }
+    };
+    <span class="pl-k">return</span> run_lsJS;
+}();
+
+lsJS.<span class="pl-c1">version</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">'</span>0.1.6<span class="pl-pds">'</span></span>;
+<span class="pl-c">/* Custom settings */</span>
+  lsJS.<span class="pl-c1">ss</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">'</span>localStorageJS.js<span class="pl-pds">'</span></span>;
+  lsJS.<span class="pl-c1">config</span>.<span class="pl-c1">error_expires</span> <span class="pl-k">=</span> <span class="pl-c1">30</span>;
+  lsJS.<span class="pl-c1">config</span>.<span class="pl-c1">removeAll</span> <span class="pl-k">=</span> <span class="pl-c1">false</span>;
+  <span class="pl-c1">lsJS.config</span>.<span class="pl-en">allready</span> <span class="pl-k">=</span> <span class="pl-k">function</span>() {
+      $(<span class="pl-k">function</span>() {
+          $(<span class="pl-s"><span class="pl-pds">"</span>#global_loading<span class="pl-pds">"</span></span>).<span class="pl-c1">hide</span>();
+      });
+  };
+  lsJS.<span class="pl-c1">load</span>({
+      name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>jquery<span class="pl-pds">"</span></span>,
+      url<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>jquery-1.11.1.min.js<span class="pl-pds">"</span></span>,
+      version<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>1.11.1<span class="pl-pds">"</span></span>
+  },{
+      name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>history<span class="pl-pds">"</span></span>,
+      url<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>history.js<span class="pl-pds">"</span></span>,
+      require<span class="pl-k">:</span><span class="pl-s"><span class="pl-pds">"</span>jquery<span class="pl-pds">"</span></span>
+  },{
+      name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>console<span class="pl-pds">"</span></span>,
+      url<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>console.js<span class="pl-pds">"</span></span>,
+      router<span class="pl-k">:</span>{
+          path<span class="pl-k">:</span><span class="pl-s"><span class="pl-pds">"</span>console.html<span class="pl-pds">"</span></span>
+      }
+  });</pre></div>
+
+<h2>
+<a id="demo" class="anchor" href="#demo" aria-hidden="true"><span class="octicon octicon-link"></span></a>Demo</h2>
+
+<p><a href="http://localstoragejs.org/demo/index.html">http://localstoragejs.org/demo/index.html</a></p>
 
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/mlinquan/localStorageJS">Localstoragejs</a> is maintained by <a href="https://github.com/mlinquan">mlinquan</a>.</span>

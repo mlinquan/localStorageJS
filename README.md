@@ -83,3 +83,5 @@ lsJS.version = '0.1.6';
       }
   });
 ```
+##Demo
+[http://localstoragejs.org/demo/index.html]

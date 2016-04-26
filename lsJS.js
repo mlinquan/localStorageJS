@@ -68,6 +68,13 @@ lsJS.config = {
 };
 
 lsJS.load({
+    name: 'commom',
+    url: 'commom.js',
+    require: ['jquery'],
+    router: {
+        path: '*'
+    }
+}, {
     name: 'history',
     url: 'history.js',
     require: ['jquery']

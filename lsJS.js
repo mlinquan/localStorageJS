@@ -50,26 +50,31 @@ var lsJS = function() {
 }();
 
 lsJS.version = '0.1.6';
-lsJS.ss = 'localStorageJS.js';
-lsJS.config.error_expires = 30;
-lsJS.config.removeAll = false;
-lsJS.config.allready = function() {
-    $(function() {
-        $("#global_loading").hide();
-    });
+lsJS.ss = '/demo/localStorageJS.js';
+lsJS.config = {
+    baseUrl: '/demo/',
+    path: {
+        'jquery': 'jquery-1.11.1.min.js'
+    },
+    error_expires: 30,
+    removeAll: false,
+    allready: function() {
+        (function($) {
+            $(function() {
+                $("#global_loading").hide();
+            });
+        })(jQuery);
+    }
 };
+
 lsJS.load({
-    name: "jquery",
-    url: "jquery-1.11.1.min.js",
-    version: "1.11.1"
-},{
-    name: "history",
-    url: "history.js",
-    require:"jquery"
-},{
-    name: "console",
-    url: "console.js",
-    router:{
-        path:"console.html"
+    name: 'history',
+    url: 'history.js',
+    require: ['jquery']
+}, {
+    name: 'console',
+    url: 'console.js',
+    router: {
+        path: '/demo/console.html'
     }
 });
